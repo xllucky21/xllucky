@@ -11,7 +11,12 @@
 ## 🛠 快速开始 (Quick Start)
 
 ### 1. 环境准备
-本项目专为 **Mac / Windows** 双平台优化，已内置 SSL 证书修复补丁。你需要安装 Python (3.8+) 以及以下依赖库：
+本项目专为 **Mac / Windows** 双平台优化，已内置 SSL 证书修复补丁。
+
+- Python: `>=3.8`
+- Node.js: `>=18`
+
+Python 依赖安装：
 
 ```bash
 python3 -m venv venv
@@ -20,12 +25,27 @@ python --version
 pip install akshare pandas matplotlib scipy requests
 ```
 
+前端依赖安装（在 `frontend/` 目录内）：
+
+```bash
+cd frontend
+npm install
+```
+
 ### 2. 运行系统
-在终端或命令行中运行脚本：
+第一步：生成数据与报告（在仓库根目录）：
 
 ```bash
 python bondFund.py
 ```
+
+第二步：启动前端仪表盘（在 `frontend/` 目录）：
+
+```bash
+npm run dev
+```
+
+默认访问地址：`http://localhost:3000`
 
 ---
 
@@ -136,3 +156,128 @@ python bondFund.py
 ---
 
 *Powered by Python, AkShare & Quantitative Finance Logic.*
+
+---
+
+## 📦 数据文件说明 (Data Schema)
+
+本系统会在与 `bondFund.py` 同级的 `data/` 目录内生成时间命名的 TypeScript 数据文件（例如 `2025-11-27_14-33-15.ts`）。该文件导出一个对象 `bondReportData`，包含原始数据与计算结论，可直接在前端使用。
+
+### 1. 顶层字段 (Top Level)
+- `generated_at`: 数据生成时间，字符串格式 `YYYY-MM-DD HH:MM:SS`
+- `report_folder`: 本次报告的目录名，例如 `Report_<时间戳>`
+- `files`: 关联文件名集合
+  - `markdown`: 报告文件名，固定为 `Bond_Analysis.md`
+  - `chart`: 图表文件名，固定为 `Chart_Dashboard.png`
+  - `ts`: 本次生成的数据文件名（时间命名）
+
+### 2. 结论字段 (Conclusion)
+- `last_date`: 最新数据日期，`YYYY-MM-DD`
+- `last_yield`: 最新 10 年国债收益率 (数值)
+- `score`: 综合评分 (0-100)
+- `weather`: 天气标签文本（如：☀️ 烈日、🌤️ 晴朗、☁️ 多云、🌧️ 小雨、⛈️ 暴雨）
+- `percentile`: 近 5 年分位数 (百分比数值)
+- `val_status`: 估值状态（如：🟢 便宜 / ⚖️ 适中 / 🔴 极贵）
+- `trend_val`: 趋势判定（“牛”或“熊”）
+- `trend_status`: 趋势文字描述（如：🟢 Yield < MA60 / 🔴 Yield > MA60）
+- `macd_val`: 动量方向（“向好”或“恶化”）
+- `macd_status`: MACD 金叉/死叉文本描述
+- `pe_val`: 股市估值字符串（形如 `PE=12.3`），数据缺失时为 `N/A`
+- `macro_msg`: ERP 结论（如：⚠️ 股市极具性价比 / ⚖️ 股债平衡 / ✅ 股市泡沫）
+- `shibor_val`: 隔夜 Shibor 数值字符串（如 `1.45%`），数据缺失时为 `N/A`
+- `liquidity_msg`: 资金面状态（如：🔥 资金紧张 / ⚖️ 适度 / 💧 极度宽松）
+- `suggestion_con`: 稳健型建议
+- `suggestion_agg`: 激进型建议
+
+### 3. 原始数据 (Raw)
+- `bond_10y`: 数组，元素为 `{ date, yield }`，分别表示日期与 10 年国债收益率
+- `stock_pe`: 数组，元素为 `{ date, pe }`，分别表示日期与沪深 300 市盈率；若获取失败则为空数组
+- `shibor_on`: 数组，元素为 `{ date, shibor }`，分别表示日期与隔夜 Shibor；若获取失败则为空数组
+
+### 4. 使用示例 (Usage)
+
+```ts
+import bondReportData from './data/2025-11-27_14-33-15.ts'
+
+console.log(bondReportData.conclusion.score)
+console.log(bondReportData.raw.bond_10y[0])
+```
+
+---
+
+## 📚 聚合历史文件 (Aggregated History)
+
+为便于统一消费所有历史运行数据，系统维护 `data/bondReports.ts` 聚合文件：
+- 导出 `bondReports` 数组，最新一次运行的数据对象位于数组最前面（时间倒序）。
+- 每次运行会自动将新对象前置插入，无需手动维护。
+- 数组元素结构与单次 `bondReportData` 一致，包含 `generated_at`、`report_folder`、`files`、`conclusion`、`raw`。
+
+### 使用示例
+
+```ts
+import bondReports from './data/bondReports.ts'
+
+// 最新一次运行的结论
+const latest = bondReports[0]
+console.log(latest.conclusion.score, latest.conclusion.weather)
+
+// 历史遍历
+for (const entry of bondReports) {
+  console.log(entry.generated_at, entry.conclusion.score)
+}
+
+// 根据日期筛选（示例：按 report_folder 或 generated_at 前缀）
+const target = bondReports.find(x => x.report_folder.startsWith('Report_2025-11-27'))
+```
+
+---
+
+## 🗂 项目结构 (Project Structure)
+
+- `bondFund.py`: Python主程序，采集、计算、生成报告与图表，并导出 TS 数据。
+- `data/`: 自动生成的数据目录
+  - `bondReports.ts`: 历史聚合数组，最新数据位于数组最前。
+  - `<YYYY-MM-DD_HH-MM-SS>.ts`: 单次运行的默认导出对象 `bondReportData`。
+- `Report_<timestamp>/`: 单次运行的报告目录，含 `Bond_Analysis.md` 与 `Chart_Dashboard.png`。
+- `frontend/`: 前端应用（React + Vite + TypeScript）
+  - `index.html`, `index.tsx`, `App.tsx`, `components/*`, `types.ts`
+  - `package.json`, `vite.config.ts`, `tsconfig.json`
+
+---
+
+## 🖥️ 前端运行与构建 (Frontend Guide)
+
+- 开发启动（在 `frontend/` 目录）：
+  - `npm run dev` → `http://localhost:3000`
+- 生产构建与预览：
+  - `npm run build`
+  - `npm run preview`
+- 数据消费：前端直接导入 `../data/bondReports.ts`，取最新数据展示。
+
+示例：
+
+```ts
+import bondReports from '../data/bondReports'
+
+const latest = bondReports[0]
+console.log(latest.conclusion.score, latest.conclusion.weather)
+```
+
+说明：当前页面样式使用 Tailwind CDN，无需本地安装；如需生产落地，建议改为本地构建方案或移除 CDN。
+
+---
+
+## 🔧 可选环境变量 (Optional Env)
+
+- 预留变量：`GEMINI_API_KEY`
+  - 如需使用，可在 `frontend/.env` 中设置：`GEMINI_API_KEY=xxxx`
+  - 该变量已通过构建注入，当前应用默认不依赖。
+
+---
+
+## ❓ 常见问题 (FAQ)
+
+- 启动前端报无法导入 `../data/*`：请先运行 `python bondFund.py` 生成数据文件，再启动前端。
+- 样式或图标加载异常：CDN 网络受限时可能无法加载 Tailwind 或图标，刷新或切换网络即可；生产环境建议本地依赖。
+- 端口占用：如 `3000` 被占用，可在 `frontend/vite.config.ts` 修改 `server.port`。
+- Python 依赖版本：为提高可复现性，建议后续添加 `requirements.txt` 固定版本。

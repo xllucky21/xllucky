@@ -10,6 +10,7 @@ import urllib3
 import warnings
 import ssl
 import os
+import json
 
 # ==========================================
 # 🛡️ 系统底层配置
@@ -144,7 +145,7 @@ def get_final_data():
     df = pd.merge(df, df_shibor, on='date', how='left')
     df.fillna(method='ffill', inplace=True)
     
-    return df
+    return df, df_bond, df_stock, df_shibor
 
 # ==========================================
 # 📄 Markdown 生成器
@@ -205,8 +206,9 @@ def save_markdown_report(filename, chart_filename, data_dict):
 # ==========================================
 
 def run_system():
-    df = get_final_data()
-    if df is None: return
+    result = get_final_data()
+    if result is None: return
+    df, df_bond, df_stock, df_shibor = result
 
     df = calculate_technical_indicators(df)
     last = df.iloc[-1]
@@ -285,10 +287,17 @@ def run_system():
     # (因为文件夹名已经有时间了，里面的文件可以命名简单点，方便阅读)
     report_basename = "Bond_Analysis.md"
     chart_basename = "Chart_Dashboard.png"
+    # 统一数据文件命名为时间，并保存到同级 data 目录
+    ts_basename = f"{current_time_str}.ts"
     
     # 6. 组合最终保存的完整路径 (指向新文件夹内部)
     report_full_path = os.path.join(output_dir, report_basename)
     chart_full_path = os.path.join(output_dir, chart_basename)
+    data_dir = os.path.join(script_dir, "data")
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+        print(f"\n📂 已创建数据文件夹: data")
+    ts_full_path = os.path.join(data_dir, ts_basename)
     
     data_dict = {
         'gen_time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -320,6 +329,75 @@ def run_system():
     print(f"   🐢 [稳健型]: {suggestion_con}")
     print(f"   🐇 [激进型]: {suggestion_agg}")
     print("█"*60 + "\n")
+    bond_records = df_bond[["date","yield"]].copy()
+    bond_records["date"] = bond_records["date"].dt.strftime("%Y-%m-%d")
+    stock_records = df_stock[["date","pe"]].copy() if set(["date","pe"]).issubset(df_stock.columns) else pd.DataFrame(columns=["date","pe"]) 
+    if "date" in stock_records.columns:
+        stock_records["date"] = pd.to_datetime(stock_records["date"]).dt.strftime("%Y-%m-%d")
+    shibor_records = df_shibor[["date","shibor"]].copy() if set(["date","shibor"]).issubset(df_shibor.columns) else pd.DataFrame(columns=["date","shibor"]) 
+    if "date" in shibor_records.columns:
+        shibor_records["date"] = pd.to_datetime(shibor_records["date"]).dt.strftime("%Y-%m-%d")
+    data_export = {
+        "generated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "report_folder": new_folder_name,
+        "files": {
+            "markdown": report_basename,
+            "chart": chart_basename,
+            "ts": ts_basename
+        },
+        "conclusion": {
+            "last_date": last['date'].strftime('%Y-%m-%d'),
+            "last_yield": float(last['yield']),
+            "score": float(score),
+            "weather": weather,
+            "percentile": float(percentile),
+            "val_status": val_status,
+            "trend_val": "牛" if last['yield'] < last['MA60'] else "熊",
+            "trend_status": "🟢 Yield < MA60" if last['yield'] < last['MA60'] else "🔴 Yield > MA60",
+            "macd_val": "向好" if last['MACD'] < last['Signal_Line'] else "恶化",
+            "macd_status": "🟢 死叉(跌)" if last['MACD'] < last['Signal_Line'] else "🔴 金叉(涨)",
+            "pe_val": pe_val_str,
+            "macro_msg": macro_msg,
+            "shibor_val": shibor_val_str,
+            "liquidity_msg": liquidity_msg,
+            "suggestion_con": suggestion_con,
+            "suggestion_agg": suggestion_agg
+        },
+        "raw": {
+            "bond_10y": bond_records.to_dict(orient="records"),
+            "stock_pe": stock_records.to_dict(orient="records"),
+            "shibor_on": shibor_records.to_dict(orient="records")
+        }
+    }
+    try:
+        ts_content = "export const bondReportData = " + json.dumps(data_export, ensure_ascii=False, indent=2) + "\nexport default bondReportData;\n"
+        with open(ts_full_path, "w", encoding="utf-8") as f:
+            f.write(ts_content)
+        print(f"✅ 数据文件已生成: {ts_full_path}")
+    except Exception as e:
+        print(f"❌ 数据文件生成失败: {e}")
+    all_ts_path = os.path.join(data_dir, "bondReports.ts")
+    try:
+        existing_interior = ""
+        if os.path.exists(all_ts_path):
+            with open(all_ts_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            begin = content.find("[")
+            end = content.rfind("]")
+            if begin != -1 and end != -1:
+                interior = content[begin+1:end].strip()
+                existing_interior = interior
+        new_entry = json.dumps(data_export, ensure_ascii=False, indent=2)
+        if existing_interior:
+            interior_new = new_entry + ",\n" + existing_interior
+        else:
+            interior_new = new_entry
+        aggregated = "export const bondReports = [\n" + interior_new + "\n];\nexport default bondReports;\n"
+        with open(all_ts_path, "w", encoding="utf-8") as f:
+            f.write(aggregated)
+        print(f"✅ 汇总数据已更新: {all_ts_path}")
+    except Exception as e:
+        print(f"❌ 汇总数据更新失败: {e}")
     
     # 绘图并保存
     plot_dashboard(df, recent_df, last, score, chart_full_path)
