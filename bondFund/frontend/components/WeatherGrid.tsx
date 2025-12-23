@@ -11,6 +11,25 @@ export const WeatherGrid: React.FC<WeatherGridProps> = ({ reports }) => {
   // Show recent 12 reports for a nice desktop grid (12 cols) or mobile (3-4 cols)
   const recentReports = reports.slice(0, 12);
 
+  // If only 1 report, show a hint
+  if (recentReports.length <= 1) {
+    return (
+      <div className="bg-slate-900 rounded-2xl shadow-lg border border-slate-800 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-slate-100 flex items-center">
+            <CalendarDays className="w-5 h-5 mr-2 text-indigo-400" />
+            近期天气概览
+          </h3>
+        </div>
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <span className="text-4xl mb-3">📊</span>
+          <p className="text-slate-400 text-sm">历史数据积累中...</p>
+          <p className="text-slate-500 text-xs mt-1">每天运行脚本后，这里会显示近12期的天气变化趋势</p>
+        </div>
+      </div>
+    );
+  }
+
   const getScoreColorClass = (score: number) => {
     if (score >= 80) return 'text-orange-400';
     if (score >= 60) return 'text-amber-400';
@@ -46,7 +65,7 @@ export const WeatherGrid: React.FC<WeatherGridProps> = ({ reports }) => {
 
                 return (
                     <div 
-                        key={report.report_folder} 
+                        key={`${conclusion.last_date}-${idx}`} 
                         className={`group relative flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-300 cursor-default ${getBgColorClass(score)}`}
                     >
                         <span className="text-[10px] font-mono text-slate-500 mb-1">{dateStr}</span>

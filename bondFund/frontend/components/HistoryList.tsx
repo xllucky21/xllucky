@@ -46,10 +46,10 @@ export const HistoryList: React.FC<HistoryListProps> = ({ reports }) => {
             <tr className="bg-slate-950/50">
               <th className="p-4 text-slate-500 font-medium text-xs uppercase tracking-wider border-b border-slate-800">日期</th>
               <th className="p-4 text-slate-500 font-medium text-xs uppercase tracking-wider border-b border-slate-800">
-                <InfoTooltip position="bottom" term="天气状况" content={`☀️ 烈日 (80-100)：极度低估，重仓\n🌤️ 晴朗 (60-80)：机会区间，加仓\n☁️ 多云 (40-60)：震荡市，观望\n🌧️ 小雨 (20-40)：风险区间，减仓\n⛈️ 暴雨 (0-20)：极度高估，清仓`} showIcon={false} />
+                <InfoTooltip position="bottom" term="天气状况" content={`☀️ 烈日 (80-100)：值得买入\n🌤️ 晴朗 (60-80)：可以买入\n☁️ 多云 (40-60)：持有观望\n🌧️ 小雨 (20-40)：暂缓买入\n⛈️ 暴雨 (0-20)：不建议买`} showIcon={false} />
               </th>
               <th className="p-4 text-slate-500 font-medium text-xs uppercase tracking-wider border-b border-slate-800">
-                <InfoTooltip position="bottom" term="综合评分" content={`0-100分，分数越高机会越大。\n\n计算维度：\n• 估值分位\n• MA60趋势\n• RSI/MACD动量\n• 宏观/资金面修正`} showIcon={false} />
+                <InfoTooltip position="bottom" term="综合评分" content={`0-100分，分数越高越值得买入。\n\n计算维度：\n• 估值分位 (60%)\n• 趋势/动量 (30%)\n• 宏观/资金面 (10%)`} showIcon={false} />
               </th>
               <th className="p-4 text-slate-500 font-medium text-xs uppercase tracking-wider border-b border-slate-800">
                 <InfoTooltip position="bottom" term="市场趋势" content={`基于 MA60 (60日均线) 判定\n\n🐂 牛：利率 < MA60\n🐻 熊：利率 > MA60`} showIcon={false} />
@@ -67,7 +67,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({ reports }) => {
               const [icon, weatherText] = conclusion.weather.split(' ');
               
               return (
-                <tr key={report.report_folder} className="hover:bg-slate-800/50 transition-colors group">
+                <tr key={`${conclusion.last_date}-${index}`} className="hover:bg-slate-800/50 transition-colors group">
                   <td className="p-4 text-sm font-mono text-slate-400">
                     {conclusion.last_date}
                     {index === 0 && (

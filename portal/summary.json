@@ -1,0 +1,127 @@
+{
+  "generated_at": "2025-12-23 21:20",
+  "bond": {
+    "score": 24.5,
+    "weather": "🌧️ 小雨 (较差)",
+    "weather_icon": "🌧️",
+    "yield": "1.84%",
+    "percentile": "8.120000000000001",
+    "valuation": "极贵",
+    "trend": "Yield > MA60",
+    "suggestion": "暂不建议买入 - 估值偏贵，建议等待更好的入场时机。",
+    "date": "2025-12-23"
+  },
+  "dividend": {
+    "score": 78.4,
+    "weather": "🌤️ 晴朗 (较好买点)",
+    "weather_icon": "☀️",
+    "signal": "buy",
+    "dividend_yield": "4.46%",
+    "spread": "2.62%",
+    "rsi": 32.9,
+    "suggestion": "建议买入 - 估值合理偏低，股债性价比良好，适合定投建仓。",
+    "top_stocks": [
+      {
+        "code": "601398",
+        "name": "工商银行",
+        "score": 96.7,
+        "yield": "5.62%"
+      },
+      {
+        "code": "601939",
+        "name": "建设银行",
+        "score": 96.7,
+        "yield": "6.43%"
+      },
+      {
+        "code": "600036",
+        "name": "招商银行",
+        "score": 93.3,
+        "yield": "4.72%"
+      },
+      {
+        "code": "601006",
+        "name": "大秦铁路",
+        "score": 93.3,
+        "yield": "4.07%"
+      },
+      {
+        "code": "601988",
+        "name": "中国银行",
+        "score": 91.7,
+        "yield": "6.17%"
+      }
+    ],
+    "date": "2025-12-23"
+  },
+  "economic": {
+    "cpi": "0.4%",
+    "ppi": "-3.6%",
+    "pmi": "49.4",
+    "scissors": "-3.1%",
+    "social_financing": "8161亿",
+    "lpr_5y": "3.5%"
+  },
+  "stocks": {
+    "sh_index": "3920",
+    "sh_change": "+0.07%",
+    "sh_change_class": "up",
+    "sz_index": "13369",
+    "sz_change": "+0.27%",
+    "sz_change_class": "up",
+    "volume": "1.90万亿",
+    "volume_percentile": 88,
+    "sentiment": "震荡",
+    "sentiment_class": "neutral"
+  },
+  "us_stocks": {
+    "nasdaq": "23,429",
+    "nasdaq_change": "+0.52%",
+    "nasdaq_change_class": "up",
+    "spx": "6,878",
+    "spx_change": "+0.64%",
+    "spx_change_class": "up",
+    "vix": "14.1",
+    "vix_class": "down",
+    "vix_color": "#64ffda",
+    "bond_10y": "4.17%",
+    "yield_spread": "0.73%",
+    "mag7": [
+      {
+        "name": "苹果",
+        "change": "-1.0%",
+        "change_class": "down"
+      },
+      {
+        "name": "微软",
+        "change": "-0.2%",
+        "change_class": "down"
+      },
+      {
+        "name": "英伟达",
+        "change": "+1.5%",
+        "change_class": "up"
+      },
+      {
+        "name": "谷歌",
+        "change": "+0.9%",
+        "change_class": "up"
+      },
+      {
+        "name": "亚马逊",
+        "change": "+0.5%",
+        "change_class": "up"
+      },
+      {
+        "name": "Meta",
+        "change": "+0.4%",
+        "change_class": "up"
+      },
+      {
+        "name": "特斯拉",
+        "change": "+1.6%",
+        "change_class": "up"
+      }
+    ]
+  }
+}

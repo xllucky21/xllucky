@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XLLucky 工具箱</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #8892b0;
+            font-size: 1.1rem;
+        }
+
+        .update-time {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 12px 24px;
+            background: rgba(100, 255, 218, 0.1);
+            border-radius: 30px;
+            display: inline-block;
+            color: #64ffda;
+            font-size: 0.95rem;
+        }
+
+        .update-wrapper {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: block;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-color);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .card-desc {
+            color: #8892b0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-file {
+            font-size: 0.85rem;
+            color: #64ffda;
+            background: rgba(100, 255, 218, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        .card-arrow {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .card-arrow {
+            transform: translateX(5px);
+        }
+
+        /* 各卡片主题色 */
+        .card.bond { --accent-color: #00d4ff; }
+        .card.economic { --accent-color: #7b2cbf; }
+        .card.stocks { --accent-color: #ff6b6b; }
+        .card.us-stocks { --accent-color: #ffd93d; }
+        .card.dividend { --accent-color: #6bcb77; }
+
+        /* 提示区 */
+        .tips {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px 30px;
+            margin-bottom: 40px;
+        }
+
+        .tips h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #64ffda;
+        }
+
+        .tips p {
+            color: #8892b0;
+            line-height: 1.8;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            color: #5a6a8a;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🎯</div>
+            <h1>XLLucky 工具箱</h1>
+            <p class="subtitle">一站式金融数据分析平台</p>
+        </header>
+
+        <div class="update-wrapper">
+            <span class="update-time">📅 数据更新时间: __BUILD_TIME__</span>
+        </div>
+
+        <div class="grid">
+            <!-- 债基晴雨表 -->
+            <a class="card bond" href="债基晴雨表.html">
+                <div class="card-icon">🌤️</div>
+                <h3 class="card-title">债基晴雨表</h3>
+                <p class="card-desc">债券基金投资时机分析，通过多维度指标判断债市冷暖，提供买卖点参考建议。</p>
+                <div class="card-footer">
+                    <span class="card-file">债基晴雨表.html</span>
+                    <span class="card-arrow">→</span>
+                </div>
+            </a>
+
+            <!-- 宏观经济看板 -->
+            <a class="card economic" href="宏观经济看板.html">
+                <div class="card-icon">📊</div>
+                <h3 class="card-title">宏观经济看板</h3>
+                <p class="card-desc">中国宏观经济与金融市场深度数据分析，涵盖GDP、CPI、PMI等核心指标。</p>
+                <div class="card-footer">
+                    <span class="card-file">宏观经济看板.html</span>
+                    <span class="card-arrow">→</span>
+                </div>
+            </a>
+
+            <!-- 股市分析看板 -->
+            <a class="card stocks" href="A股分析看板.html">
+                <div class="card-icon">📈</div>
+                <h3 class="card-title">A股分析看板</h3>
+                <p class="card-desc">A股市场全维度分析，包括估值水平、资金流向、市场情绪等多项指标。</p>
+                <div class="card-footer">
+                    <span class="card-file">A股分析看板.html</span>
+                    <span class="card-arrow">→</span>
+                </div>
+            </a>
+
+            <!-- 美股分析看板 -->
+            <a class="card us-stocks" href="美股分析看板.html">
+                <div class="card-icon">🇺🇸</div>
+                <h3 class="card-title">美股分析看板</h3>
+                <p class="card-desc">美股市场全维度分析，追踪纳斯达克、标普500等主要指数及核心指标。</p>
+                <div class="card-footer">
+                    <span class="card-file">美股分析看板.html</span>
+                    <span class="card-arrow">→</span>
+                </div>
+            </a>
+
+            <!-- 红利股票工具箱 -->
+            <a class="card dividend" href="红利股票工具箱.html">
+                <div class="card-icon">💰</div>
+                <h3 class="card-title">红利股票工具箱</h3>
+                <p class="card-desc">红利股投资分析工具，通过股息率、股债息差等指标辅助买卖点决策。</p>
+                <div class="card-footer">
+                    <span class="card-file">红利股票工具箱.html</span>
+                    <span class="card-arrow">→</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="tips">
+            <h2>💡 使用说明</h2>
+            <p>
+                • 点击上方卡片即可打开对应的工具箱<br>
+                • 所有文件需放在同一目录下才能正常跳转<br>
+                • 数据为离线快照，如需最新数据请联系数据提供者
+            </p>
+        </div>
+
+        <footer>
+            <p>XLLucky 工具箱 © 2024 | 数据仅供参考，不构成投资建议</p>
+        </footer>
+    </div>
+</body>
+</html>

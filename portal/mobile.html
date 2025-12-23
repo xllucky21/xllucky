@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>XLLucky 摘要</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        /* 顶部标题 */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header .date {
+            color: #8892b0;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        /* 总览卡片 */
+        .overview {
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(123, 44, 191, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .overview-title {
+            font-size: 0.9rem;
+            color: #8892b0;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .overview-item {
+            text-align: center;
+            padding: 12px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .overview-item .label {
+            font-size: 0.75rem;
+            color: #8892b0;
+            margin-bottom: 4px;
+        }
+
+        .overview-item .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .overview-item .value.up { color: #ff6b6b; }
+        .overview-item .value.down { color: #64ffda; }
+        .overview-item .value.neutral { color: #ffd93d; }
+
+        /* 工具箱摘要卡片 */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .card-title .icon {
+            font-size: 1.2rem;
+        }
+
+        .card-weather {
+            font-size: 1.4rem;
+        }
+
+        .card-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .score-label {
+            font-size: 0.8rem;
+            color: #8892b0;
+        }
+
+        .score-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* 信号标签 */
+        .signal {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .signal.buy {
+            background: rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+        }
+
+        .signal.sell {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        .signal.hold {
+            background: rgba(255, 217, 61, 0.2);
+            color: #ffd93d;
+        }
+
+        /* 指标列表 */
+        .metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .metric {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .metric .label {
+            color: #8892b0;
+        }
+
+        .metric .value {
+            font-weight: 500;
+        }
+
+        /* 建议区域 */
+        .suggestion {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border-left: 3px solid;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #ccd6f6;
+        }
+
+        .suggestion.conservative {
+            border-color: #64ffda;
+        }
+
+        .suggestion.aggressive {
+            border-color: #ff6b6b;
+        }
+
+        .suggestion-label {
+            font-size: 0.75rem;
+            color: #8892b0;
+            margin-bottom: 4px;
+        }
+
+        /* 分隔线 */
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 12px 0;
+        }
+
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #8892b0;
+        }
+
+        .loading-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #64ffda;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 错误状态 */
+        .error {
+            text-align: center;
+            padding: 20px;
+            color: #ff6b6b;
+            font-size: 0.9rem;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+        }
+
+        /* 刷新按钮 */
+        .refresh-btn {
+            position: fixed;
+            top: 20px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .refresh-btn.spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        /* 美股/A股市场概览 */
+        .market-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .market-item {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .market-item .name {
+            font-size: 0.75rem;
+            color: #8892b0;
+            margin-bottom: 4px;
+        }
+
+        .market-item .price {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .market-item .change {
+            font-size: 0.75rem;
+            margin-top: 2px;
+        }
+
+        .market-item .change.up { color: #ff6b6b; }
+        .market-item .change.down { color: #64ffda; }
+
+        /* 宏观指标网格 */
+        .macro-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .macro-item {
+            padding: 10px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .macro-item .label {
+            font-size: 0.7rem;
+            color: #8892b0;
+            margin-bottom: 4px;
+        }
+
+        .macro-item .value {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* 股票列表 */
+        .stock-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .stock-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stock-item:last-child {
+            border-bottom: none;
+        }
+
+        .stock-info {
+            flex: 1;
+        }
+
+        .stock-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .stock-code {
+            font-size: 0.75rem;
+            color: #8892b0;
+        }
+
+        .stock-score {
+            text-align: right;
+        }
+
+        .stock-score .score {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64ffda;
+        }
+
+        .stock-score .yield {
+            font-size: 0.75rem;
+            color: #ffd93d;
+        }
+
+        /* 折叠面板 */
+        .collapse-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 8px 0;
+        }
+
+        .collapse-icon {
+            transition: transform 0.3s;
+        }
+
+        .collapse-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .collapse-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapse-content.expanded {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <button class="refresh-btn" onclick="loadData()" title="刷新数据">🔄</button>
+
+    <div class="header">
+        <h1>🎯 XLLucky 摘要</h1>
+        <div class="date" id="date-display">加载中...</div>
+    </div>
+
+    <div id="content">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <div>正在加载数据...</div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn active" onclick="location.href='mobile.html'">📱 摘要</button>
+        <button class="nav-btn" onclick="location.href='index.html'">🖥️ 完整版</button>
+    </div>
+
+    <script>
+        // 数据存储
+        let summaryData = null;
+
+        // 更新日期显示
+        function updateDateDisplay() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('zh-CN', {
+                month: 'long',
+                day: 'numeric',
+                weekday: 'short'
+            });
+            document.getElementById('date-display').textContent = dateStr;
+        }
+
+        // 加载摘要数据
+        async function loadData() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            refreshBtn.classList.add('spinning');
+
+            try {
+                const response = await fetch('summary.json?' + Date.now());
+                if (!response.ok) throw new Error('数据未生成');
+                summaryData = await response.json();
+                renderContent();
+            } catch (e) {
+                document.getElementById('content').innerHTML = `
+                    <div class="error">
+                        <p>📭 暂无摘要数据</p>
+                        <p style="color: #8892b0; margin-top: 8px; font-size: 0.8rem;">
+                            请先运行 ./run.sh 更新数据
+                        </p>
+                    </div>
+                `;
+            } finally {
+                refreshBtn.classList.remove('spinning');
+            }
+        }
+
+        // 获取评分颜色
+        function getScoreColor(score, max = 100) {
+            const ratio = score / max;
+            if (ratio >= 0.7) return '#64ffda';
+            if (ratio >= 0.4) return '#ffd93d';
+            return '#ff6b6b';
+        }
+
+        // 获取信号类型
+        function getSignalType(score, thresholds = { buy: 70, sell: 30 }) {
+            if (score >= thresholds.buy) return 'buy';
+            if (score <= thresholds.sell) return 'sell';
+            return 'hold';
+        }
+
+        // 获取信号文字
+        function getSignalText(type) {
+            const map = { buy: '建议买入', sell: '建议卖出', hold: '持有观望' };
+            return map[type] || '观望';
+        }
+
+        // 渲染内容
+        function renderContent() {
+            if (!summaryData) return;
+
+            const { bond, dividend, economic, stocks, us_stocks, generated_at } = summaryData;
+
+            let html = '';
+
+            // 总览卡片
+            html += `
+                <div class="overview">
+                    <div class="overview-title">📊 市场总览</div>
+                    <div class="overview-grid">
+                        <div class="overview-item">
+                            <div class="label">债基天气</div>
+                            <div class="value">${bond?.weather || '--'}</div>
+                        </div>
+                        <div class="overview-item">
+                            <div class="label">红利指数</div>
+                            <div class="value">${dividend?.weather || '--'}</div>
+                        </div>
+                        <div class="overview-item">
+                            <div class="label">A股情绪</div>
+                            <div class="value ${stocks?.sentiment_class || ''}">${stocks?.sentiment || '--'}</div>
+                        </div>
+                        <div class="overview-item">
+                            <div class="label">美股VIX</div>
+                            <div class="value ${us_stocks?.vix_class || ''}">${us_stocks?.vix || '--'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 债基晴雨表
+            if (bond) {
+                const signalType = bond.score >= 70 ? 'buy' : (bond.score <= 30 ? 'sell' : 'hold');
+                html += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span class="icon">🌤️</span>
+                                <span>债基晴雨表</span>
+                            </div>
+                            <div class="card-weather">${bond.weather_icon || '🌤️'}</div>
+                        </div>
+                        <div class="card-score">
+                            <div>
+                                <div class="score-value" style="color: ${getScoreColor(bond.score)}">${bond.score}</div>
+                                <div class="score-label">综合评分</div>
+                            </div>
+                            <div class="score-bar">
+                                <div class="score-bar-fill" style="width: ${bond.score}%; background: ${getScoreColor(bond.score)}"></div>
+                            </div>
+                            <span class="signal ${signalType}">${getSignalText(signalType)}</span>
+                        </div>
+                        <div class="metrics">
+                            <div class="metric"><span class="label">收益率</span><span class="value">${bond.yield || '--'}</span></div>
+                            <div class="metric"><span class="label">历史分位</span><span class="value">${bond.percentile || '--'}</span></div>
+                            <div class="metric"><span class="label">估值</span><span class="value">${bond.valuation || '--'}</span></div>
+                            <div class="metric"><span class="label">趋势</span><span class="value">${bond.trend || '--'}</span></div>
+                        </div>
+                        <div class="suggestion conservative">
+                            <div class="suggestion-label">💡 投资建议</div>
+                            ${bond.suggestion || '暂无建议'}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 红利股票
+            if (dividend) {
+                const signalType = dividend.signal || 'hold';
+                html += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span class="icon">💰</span>
+                                <span>红利股票</span>
+                            </div>
+                            <div class="card-weather">${dividend.weather_icon || '🌤️'}</div>
+                        </div>
+                        <div class="card-score">
+                            <div>
+                                <div class="score-value" style="color: ${getScoreColor(dividend.score)}">${dividend.score || '--'}</div>
+                                <div class="score-label">综合评分</div>
+                            </div>
+                            <div class="score-bar">
+                                <div class="score-bar-fill" style="width: ${dividend.score || 0}%; background: ${getScoreColor(dividend.score || 50)}"></div>
+                            </div>
+                            <span class="signal ${signalType}">${getSignalText(signalType)}</span>
+                        </div>
+                        <div class="metrics">
+                            <div class="metric"><span class="label">股息率</span><span class="value">${dividend.dividend_yield || '--'}</span></div>
+                            <div class="metric"><span class="label">股债利差</span><span class="value">${dividend.spread || '--'}</span></div>
+                            <div class="metric"><span class="label">RSI</span><span class="value">${dividend.rsi || '--'}</span></div>
+                        </div>
+                        <div class="suggestion conservative">
+                            <div class="suggestion-label">💡 投资建议</div>
+                            ${dividend.suggestion || '暂无建议'}
+                        </div>
+                        ${dividend.top_stocks ? `
+                            <div class="divider"></div>
+                            <div class="collapse-header" onclick="toggleCollapse(this)">
+                                <span style="font-size: 0.85rem; color: #8892b0;">🏆 高分股票 TOP5</span>
+                                <span class="collapse-icon">▼</span>
+                            </div>
+                            <div class="collapse-content">
+                                <div class="stock-list">
+                                    ${dividend.top_stocks.map(s => `
+                                        <div class="stock-item">
+                                            <div class="stock-info">
+                                                <div class="stock-name">${s.name}</div>
+                                                <div class="stock-code">${s.code}</div>
+                                            </div>
+                                            <div class="stock-score">
+                                                <div class="score">${s.score}分</div>
+                                                <div class="yield">股息率 ${s.yield}</div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            // 宏观经济
+            if (economic) {
+                html += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span class="icon">📊</span>
+                                <span>宏观经济</span>
+                            </div>
+                        </div>
+                        <div class="macro-grid">
+                            <div class="macro-item">
+                                <div class="label">CPI</div>
+                                <div class="value">${economic.cpi || '--'}</div>
+                            </div>
+                            <div class="macro-item">
+                                <div class="label">PPI</div>
+                                <div class="value">${economic.ppi || '--'}</div>
+                            </div>
+                            <div class="macro-item">
+                                <div class="label">PMI</div>
+                                <div class="value" style="color: ${parseFloat(economic.pmi) >= 50 ? '#64ffda' : '#ff6b6b'}">${economic.pmi || '--'}</div>
+                            </div>
+                            <div class="macro-item">
+                                <div class="label">M1-M2剪刀差</div>
+                                <div class="value">${economic.scissors || '--'}</div>
+                            </div>
+                            <div class="macro-item">
+                                <div class="label">社融增速</div>
+                                <div class="value">${economic.social_financing || '--'}</div>
+                            </div>
+                            <div class="macro-item">
+                                <div class="label">LPR(5Y)</div>
+                                <div class="value">${economic.lpr_5y || '--'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // A股市场
+            if (stocks) {
+                html += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span class="icon">📈</span>
+                                <span>A股市场</span>
+                            </div>
+                        </div>
+                        <div class="market-row">
+                            <div class="market-item">
+                                <div class="name">上证指数</div>
+                                <div class="price">${stocks.sh_index || '--'}</div>
+                                <div class="change ${stocks.sh_change_class || ''}">${stocks.sh_change || '--'}</div>
+                            </div>
+                            <div class="market-item">
+                                <div class="name">深证成指</div>
+                                <div class="price">${stocks.sz_index || '--'}</div>
+                                <div class="change ${stocks.sz_change_class || ''}">${stocks.sz_change || '--'}</div>
+                            </div>
+                        </div>
+                        <div class="metrics">
+                            <div class="metric"><span class="label">成交额</span><span class="value">${stocks.volume || '--'}</span></div>
+                            <div class="metric"><span class="label">北向资金</span><span class="value" style="color: ${stocks.north_flow_class === 'up' ? '#ff6b6b' : '#64ffda'}">${stocks.north_flow || '--'}</span></div>
+                            <div class="metric"><span class="label">融资余额</span><span class="value">${stocks.margin || '--'}</span></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 美股市场
+            if (us_stocks) {
+                html += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span class="icon">🇺🇸</span>
+                                <span>美股市场</span>
+                            </div>
+                        </div>
+                        <div class="market-row">
+                            <div class="market-item">
+                                <div class="name">纳斯达克</div>
+                                <div class="price">${us_stocks.nasdaq || '--'}</div>
+                                <div class="change ${us_stocks.nasdaq_change_class || ''}">${us_stocks.nasdaq_change || '--'}</div>
+                            </div>
+                            <div class="market-item">
+                                <div class="name">标普500</div>
+                                <div class="price">${us_stocks.spx || '--'}</div>
+                                <div class="change ${us_stocks.spx_change_class || ''}">${us_stocks.spx_change || '--'}</div>
+                            </div>
+                        </div>
+                        <div class="metrics">
+                            <div class="metric"><span class="label">VIX恐慌</span><span class="value" style="color: ${us_stocks.vix_color || '#fff'}">${us_stocks.vix || '--'}</span></div>
+                            <div class="metric"><span class="label">美债10Y</span><span class="value">${us_stocks.bond_10y || '--'}</span></div>
+                            <div class="metric"><span class="label">2-10利差</span><span class="value">${us_stocks.yield_spread || '--'}</span></div>
+                        </div>
+                        ${us_stocks.mag7 ? `
+                            <div class="divider"></div>
+                            <div class="collapse-header" onclick="toggleCollapse(this)">
+                                <span style="font-size: 0.85rem; color: #8892b0;">🌟 七巨头今日表现</span>
+                                <span class="collapse-icon">▼</span>
+                            </div>
+                            <div class="collapse-content">
+                                <div class="market-row" style="flex-wrap: wrap;">
+                                    ${us_stocks.mag7.map(s => `
+                                        <div class="market-item" style="flex: 0 0 calc(33.33% - 6px); min-width: 80px;">
+                                            <div class="name">${s.name}</div>
+                                            <div class="change ${s.change_class}">${s.change}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            // 更新时间
+            html += `
+                <div style="text-align: center; padding: 16px; color: #5a6a8a; font-size: 0.75rem;">
+                    数据更新于: ${generated_at || '未知'}<br>
+                    仅供参考，不构成投资建议
+                </div>
+            `;
+
+            document.getElementById('content').innerHTML = html;
+        }
+
+        // 折叠面板切换
+        function toggleCollapse(header) {
+            const icon = header.querySelector('.collapse-icon');
+            const content = header.nextElementSibling;
+            icon.classList.toggle('expanded');
+            content.classList.toggle('expanded');
+        }
+
+        // 初始化
+        updateDateDisplay();
+        loadData();
+    </script>
+</body>
+</html>

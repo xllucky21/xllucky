@@ -1,0 +1,32 @@
+{
+  "records": [
+    {
+      "timestamp": "2025-12-23 16:09:39",
+      "success": 5,
+      "unchanged": 0,
+      "failed": 0,
+      "duration": 60,
+      "trigger": "schedule",
+      "details": {}
+    },
+    {
+      "timestamp": "2025-12-23 20:02:39",
+      "success": 5,
+      "unchanged": 0,
+      "failed": 0,
+      "duration": 151,
+      "trigger": "schedule",
+      "details": {}
+    }
+  ],
+  "stats": {
+    "total_executions": 2,
+    "success_rate": 100.0,
+    "avg_duration": 105.5,
+    "last_execution": "2025-12-23 20:02:39",
+    "recent_7d": {
+      "count": 2,
+      "success_rate": 100.0
+    }
+  }
+}

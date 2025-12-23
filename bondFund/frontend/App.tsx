@@ -60,8 +60,10 @@ const App: React.FC = () => {
             {/* Section 3: History Table */}
             <HistoryList reports={reports} />
 
-            {/* Section 4: Chart (Moved to bottom) */}
-            <YieldChartSection data={latestReport.raw.bond_10y} />
+            {/* Section 4: Chart (Moved to bottom) - only show if raw data exists */}
+            {latestReport.raw?.bond_10y && (
+              <YieldChartSection data={latestReport.raw.bond_10y} />
+            )}
         </div>
       </main>
 

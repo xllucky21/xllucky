@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XLLucky 工具箱</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #8892b0;
+            font-size: 1.1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-color);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .card-desc {
+            color: #8892b0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-port {
+            font-size: 0.85rem;
+            color: #64ffda;
+            background: rgba(100, 255, 218, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        .card-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff6b6b;
+        }
+
+        .status-dot.online {
+            background: #64ffda;
+            box-shadow: 0 0 10px #64ffda;
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 15px;
+            transition: gap 0.3s ease;
+        }
+
+        .card-link:hover {
+            gap: 12px;
+        }
+
+        /* 各卡片主题色 */
+        .card.bond { --accent-color: #00d4ff; }
+        .card.economic { --accent-color: #7b2cbf; }
+        .card.stocks { --accent-color: #ff6b6b; }
+        .card.us-stocks { --accent-color: #ffd93d; }
+        .card.dividend { --accent-color: #6bcb77; }
+
+        /* 快捷操作区 */
+        .quick-actions {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .quick-actions h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #8892b0;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            color: #fff;
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        footer {
+            text-align: center;
+            color: #5a6a8a;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 时间显示 */
+        .datetime {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #8892b0;
+        }
+
+        .datetime .time {
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: #fff;
+        }
+
+        .datetime .date {
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+
+        .datetime .update-info {
+            margin-top: 12px;
+            padding: 8px 20px;
+            background: rgba(100, 255, 218, 0.1);
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .datetime .update-info.success {
+            color: #64ffda;
+        }
+
+        .datetime .update-info.warning {
+            color: #ffd93d;
+        }
+
+        .datetime .update-info.none {
+            color: #8892b0;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🎯</div>
+            <h1>XLLucky 工具箱</h1>
+            <p class="subtitle">一站式金融数据分析平台</p>
+        </header>
+
+        <div class="datetime">
+            <div class="time" id="time">--:--:--</div>
+            <div class="date" id="date">----年--月--日 星期-</div>
+            <div class="update-info none" id="update-info">数据未更新</div>
+        </div>
+
+        <div class="grid">
+            <!-- 宏观经济看板 -->
+            <div class="card economic" onclick="openTool(5174)">
+                <div class="card-icon">📊</div>
+                <h3 class="card-title">宏观经济看板</h3>
+                <p class="card-desc">中国宏观经济与金融市场深度数据分析，涵盖GDP、CPI、PMI等核心指标。</p>
+                <div class="card-footer">
+                    <span class="card-port">:5174</span>
+                    <div class="card-status">
+                        <span class="status-dot" id="status-5174"></span>
+                        <span id="status-text-5174">检测中...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 债基晴雨表 -->
+            <div class="card bond" onclick="openTool(5173)">
+                <div class="card-icon">🌤️</div>
+                <h3 class="card-title">债基晴雨表</h3>
+                <p class="card-desc">债券基金投资时机分析，通过多维度指标判断债市冷暖，提供买卖点参考建议。</p>
+                <div class="card-footer">
+                    <span class="card-port">:5173</span>
+                    <div class="card-status">
+                        <span class="status-dot" id="status-5173"></span>
+                        <span id="status-text-5173">检测中...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 股市分析看板 -->
+            <div class="card stocks" onclick="openTool(5175)">
+                <div class="card-icon">📈</div>
+                <h3 class="card-title">A股分析看板</h3>
+                <p class="card-desc">A股市场全维度分析，包括估值水平、资金流向、市场情绪等多项指标。</p>
+                <div class="card-footer">
+                    <span class="card-port">:5175</span>
+                    <div class="card-status">
+                        <span class="status-dot" id="status-5175"></span>
+                        <span id="status-text-5175">检测中...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 美股分析看板 -->
+            <div class="card us-stocks" onclick="openTool(5176)">
+                <div class="card-icon">🇺🇸</div>
+                <h3 class="card-title">美股分析看板</h3>
+                <p class="card-desc">美股市场全维度分析，追踪纳斯达克、标普500等主要指数及核心指标。</p>
+                <div class="card-footer">
+                    <span class="card-port">:5176</span>
+                    <div class="card-status">
+                        <span class="status-dot" id="status-5176"></span>
+                        <span id="status-text-5176">检测中...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 红利股票工具箱 -->
+            <div class="card dividend" onclick="openTool(5177)">
+                <div class="card-icon">💰</div>
+                <h3 class="card-title">红利股票工具箱</h3>
+                <p class="card-desc">红利股投资分析工具，通过股息率、股债息差等指标辅助买卖点决策。</p>
+                <div class="card-footer">
+                    <span class="card-port">:5177</span>
+                    <div class="card-status">
+                        <span class="status-dot" id="status-5177"></span>
+                        <span id="status-text-5177">检测中...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h2>💡 快捷提示</h2>
+            <p style="color: #8892b0; line-height: 1.8;">
+                1. 在终端运行 <code style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">./run.sh</code> 启动管理脚本<br>
+                2. 选择 <code style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">3</code> 一键更新数据并启动所有前端<br>
+                3. 点击上方卡片即可跳转到对应工具箱
+            </p>
+            <div style="margin-top: 20px;">
+                <a href="mobile.html" class="action-btn primary" style="text-decoration: none; display: inline-flex;">
+                    📱 手机摘要版
+                </a>
+            </div>
+        </div>
+
+        <footer>
+            <p>XLLucky 工具箱 v1.0.0 © 2024 | 数据仅供参考，不构成投资建议</p>
+        </footer>
+    </div>
+
+    <script>
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
+            const dateStr = now.toLocaleDateString('zh-CN', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                weekday: 'long'
+            });
+            document.getElementById('time').textContent = timeStr;
+            document.getElementById('date').textContent = dateStr;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // 打开工具
+        function openTool(port) {
+            window.open(`http://localhost:${port}`, '_blank');
+        }
+
+        // 检测服务状态
+        async function checkStatus(port) {
+            const dot = document.getElementById(`status-${port}`);
+            const text = document.getElementById(`status-text-${port}`);
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+                
+                await fetch(`http://localhost:${port}`, { 
+                    mode: 'no-cors',
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                
+                dot.classList.add('online');
+                text.textContent = '运行中';
+            } catch (e) {
+                dot.classList.remove('online');
+                text.textContent = '未启动';
+            }
+        }
+
+        // 检测所有服务
+        function checkAllStatus() {
+            [5173, 5174, 5175, 5176, 5177].forEach(port => checkStatus(port));
+        }
+
+        // 获取最后更新时间
+        async function fetchUpdateStatus() {
+            const updateInfo = document.getElementById('update-info');
+            try {
+                const response = await fetch('update_status.json?' + Date.now());
+                if (response.ok) {
+                    const data = await response.json();
+                    const lastUpdate = data.lastUpdate;
+                    const success = data.success || 0;
+                    const failed = data.failed || 0;
+                    
+                    if (failed > 0) {
+                        updateInfo.className = 'update-info warning';
+                        updateInfo.textContent = `📅 最后更新: ${lastUpdate} (成功${success}/失败${failed})`;
+                    } else {
+                        updateInfo.className = 'update-info success';
+                        updateInfo.textContent = `📅 最后更新: ${lastUpdate} (${success}个工具箱)`;
+                    }
+                } else {
+                    updateInfo.className = 'update-info none';
+                    updateInfo.textContent = '📅 数据未更新，请运行 ./run.sh 更新';
+                }
+            } catch (e) {
+                updateInfo.className = 'update-info none';
+                updateInfo.textContent = '📅 数据未更新，请运行 ./run.sh 更新';
+            }
+        }
+
+        // 初始检测
+        checkAllStatus();
+        fetchUpdateStatus();
+        // 每10秒检测一次
+        setInterval(checkAllStatus, 10000);
+        // 每30秒检测更新状态
+        setInterval(fetchUpdateStatus, 30000);
+    </script>
+</body>
+</html>
